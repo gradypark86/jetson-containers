@@ -11,6 +11,11 @@ ENV DEBIAN_FRONTEND=noninteractive \
     LANG=en_US.UTF-8 \
     LC_ALL=en_US.UTF-8
     #TERM=dumb
+RUN mv /etc/apt/sources.list /etc/apt/sources_backup.list && \
+    echo "deb https://mirrors.bfsu.edu.cn/ubuntu-ports/ focal main restricted universe multiverse " >> /etc/apt/sources.list && \
+    echo "deb https://mirrors.bfsu.edu.cn/ubuntu-ports/ focal-updates main restricted universe multiverse " >> /etc/apt/sources.list && \
+    echo "deb https://mirrors.bfsu.edu.cn/ubuntu-ports/ focal-backports main restricted universe multiverse " >> /etc/apt/sources.list && \
+    echo "deb http://ports.ubuntu.com/ubuntu-ports/ focal-security main restricted universe multiverse " >> /etc/apt/sources.list
 
 RUN set -ex \
     && apt-get update \
