@@ -43,6 +43,7 @@ RUN set -ex \
         zip \
         unzip \
         time \
+        vim \
 	   sshpass \
 	   ssh-client \
     && apt-get clean \
