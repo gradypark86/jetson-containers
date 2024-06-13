@@ -20,7 +20,7 @@ WORKDIR /workspace
 #
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-          git \
+        git \
 		cmake \
 		build-essential \
 		curl \
@@ -30,8 +30,13 @@ RUN apt-get update && \
 		ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-RUN sh -c 'sudo sh -c '. /etc/lsb-release && echo "deb http://mirrors.bfsu.edu.cn/ros/ubuntu/ `lsb_release -cs` main" > /etc/apt/sources.list.d/ros-latest.list''
-RUN curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add -
+RUN if [ $(lsb_release --codename --short) != "jammy" ]; then \
+        curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg ; \
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] https://mirrors.bfsu.edu.cn/ros2/ubuntu $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/ros2.list > /dev/null ; \
+    else \
+        sh -c 'sudo sh -c '. /etc/lsb-release && echo "deb http://mirrors.bfsu.edu.cn/ros/ubuntu/ `lsb_release -cs` main" > /etc/apt/sources.list.d/ros-latest.list'' ; \
+        curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add - ; \
+    fi 
 
 
 #
@@ -49,7 +54,9 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # /usr/bin/rosinstall_generator => No module named 'importlib.metadata'
-RUN pip3 install --no-cache-dir --verbose importlib.metadata
+RUN pip3 list | grep catkin && pip3 install --no-cache-dir --verbose importlib.metadata catkin && \
+    pip3 list | grep catkin && \
+    python3 -c 'import catkin'
 RUN rm -f /var/lib/dpkg/info/libopencv* /var/lib/dpkg/info/opencv* && apt-get purge -y libopencv* opencv* && apt --fix-broken install -y
 RUN apt-get update && apt install -y --no-install-recommends \
     ros-noetic-serial ros-noetic-gmapping ros-noetic-navigation \
@@ -60,7 +67,7 @@ RUN apt-get update && apt install -y --no-install-recommends \
     libeigen3-dev ros-noetic-teleop-twist-keyboard ros-noetic-map-server \
     ros-noetic-teb-local-planner ros-noetic-pcl-ros && pip install rospkg catkin_pkg pyserial pyyaml &&\
     rm -rf /var/lib/apt/lists/* && echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
-
+    
 
 #
 # download/build the ROS source
