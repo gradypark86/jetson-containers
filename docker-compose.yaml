@@ -1,0 +1,34 @@
+version: '3'
+services:
+    ros1:
+        # stdin_open: true
+        tty: true
+        network_mode: host
+        user: "0:0"
+        volumes:
+            - /tmp/argus_socket:/tmp/argus_socket
+            - /etc/enctune.conf:/etc/enctune.conf
+            - /etc/nv_tegra_release:/etc/nv_tegra_release
+            # - /tmp/nv_jetson_model:/tmp/nv_jetson_model
+            - /var/run/dbus:/var/run/dbus
+            - /var/run/avahi-daemon/socket:/var/run/avahi-daemon/socket
+            - /var/run/docker.sock:/var/run/docker.sock
+            # - /home/grady/Lab/jetson-containers/data:/data
+            - /run/jtop.sock:/run/jtop.sock
+            - /home/grady/Lab:/lab
+            # - /etc/udev/rules.d:/etc/udev/rules.d:ro
+            - /dev:/dev
+            # - /home/grady/Lab/wheeltec/others/ros_entrypoint.sh:/ros_entrypoint.sh
+        command: ["bash", "/lab/wheeltec/others/command.sh"]
+        devices:
+            - /dev/bus/usb:/dev/bus/usb
+            # - /dev/ttyUSB0
+            # - /dev/ttyACM0
+            # - /dev/Orbbec_Gemini_2
+            # - /dev/ttyUSB1
+        privileged: true
+        image: gradypark86/ros1:v1.0-focal-tf-tc-l4t-r35.5.0
+        container_name: ros1
+        environment:
+            - ROS_IP=192.168.22.3
+            - ROS_MASTER_URI=http://localhost:11311
